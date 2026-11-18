@@ -120,7 +120,7 @@ python fix_outlier_test.py # -> submission_v2.csv  (the submitted file)
 ```
 
 Expect ~15 minutes for the six-model run on 8 GB of RAM with single-threaded
-BLAS. Full write-up: [`report.html`](report.html). Short version for a Kaggle
+BLAS. Full write-up: [`report.pdf`](report.pdf) (source: [`report.html`](report.html)). Short version for a Kaggle
 post: [`writeup.md`](writeup.md).
 
 ## Repository layout
@@ -136,7 +136,9 @@ submission_v2.csv       submitted file — public LB 0.11569
 submission_blend.csv    first submission, before the outlier fix — 0.12165
 blend_weights.json      fitted weights and both OOF estimates
 
-report.html             full method report, six tables
+report.pdf              full method report, A4, 5 pages
+report.html             source of report.pdf, six tables
+make_report_pdf.py      renders the PDF from the HTML (playwright + PyMuPDF)
 writeup.md              short version formatted for a Kaggle discussion post
 ```
 
