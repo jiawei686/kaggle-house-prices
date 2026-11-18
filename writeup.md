@@ -1,8 +1,8 @@
 # House Prices: top 5% (0.11569), and the one row that mattered
 
-*Team `kiritocui` — Kaggle group [`we-are-nai-looong`](https://www.kaggle.com/groups/we-are-nai-looong)*
+*Team `we are nai looong` — Kaggle group [`we-are-nai-looong`](https://www.kaggle.com/groups/we-are-nai-looong)*
 
-Public LB **0.11569**, rank **236 / 4,955** (4.76%). Took two submissions.
+Public LB **0.11569**, rank **236 / 4,957** (4.76%). Took two submissions.
 
 | Model | OOF RMSE | Weight |
 |---|---|---|

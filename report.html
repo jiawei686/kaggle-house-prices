@@ -36,8 +36,8 @@
 <h1>House Prices — Method Report</h1>
 <p class="sub">
 Competition: House Prices - Advanced Regression Techniques (Kaggle Getting Started, open until 2030)<br>
-Group: we-are-nai-looong &nbsp;|&nbsp; Submitted from account: kiritocui (leaderboard team name: kiritocui) &nbsp;|&nbsp; 18 Nov 2026<br>
-Final public LB: <strong>0.11569</strong> &nbsp;|&nbsp; Rank <strong>236 / 4,955</strong> (top 4.76%)
+Group: we-are-nai-looong &nbsp;|&nbsp; Leaderboard team name: <strong>we are nai looong</strong> (account: kiritocui) &nbsp;|&nbsp; 18 Nov 2026<br>
+Final public LB: <strong>0.11569</strong> &nbsp;|&nbsp; Rank <strong>236 / 4,957</strong> (top 4.76%)
 </p>
 
 <h2>1. Task and data</h2>
@@ -142,10 +142,10 @@ Final public LB: <strong>0.11569</strong> &nbsp;|&nbsp; Rank <strong>236 / 4,955
   <tr><th style="width:12%">Version</th><th style="width:30%">Content</th><th style="width:15%">Public LB</th>
       <th style="width:20%">Rank / teams</th><th>Percentile</th></tr>
   <tr><td>v1</td><td>6-model NNLS blend</td><td class="num">0.12165</td><td class="num">923 / 4,954</td><td class="num">18.63%</td></tr>
-  <tr><td class="k">v2</td><td>v1 with the Edwards row corrected</td><td class="num k">0.11569</td><td class="num k">236 / 4,955</td><td class="num k">4.76%</td></tr>
-  <tr><td>Top 10% cutoff</td><td>what the threshold requires</td><td class="num">&le; 0.11972</td><td class="num">&le; 495</td><td class="num">10.00%</td></tr>
+  <tr><td class="k">v2</td><td>v1 with the Edwards row corrected</td><td class="num k">0.11569</td><td class="num k">236 / 4,957</td><td class="num k">4.76%</td></tr>
+  <tr><td>Top 10% cutoff</td><td>what the threshold requires</td><td class="num">&le; 0.11966</td><td class="num">&le; 495</td><td class="num">10.00%</td></tr>
 </table>
-<p class="note">Margin: 0.00403 in score, 259 places. The board keeps growing, so re-check before any final submission.</p>
+<p class="note">Margin: 0.00397 in score, 259 places. The board keeps growing as new teams join, so v1 figures are a snapshot from its own submission day and the cutoff should be re-checked before any further submission.</p>
 
 <p>Fixing one of 1,459 rows moved the rank by 687 places. That is the nature of a squared metric with a small test set: one badly extrapolated row outweighs a week of model tuning.</p>
 
@@ -159,11 +159,14 @@ Final public LB: <strong>0.11569</strong> &nbsp;|&nbsp; Rank <strong>236 / 4,955
 </ul>
 
 <h2>6. Reproduce</h2>
-<pre># Python 3.13, lightgbm 4.7.0, xgboost 3.4.1, catboost 1.2.10, scikit-learn 1.9.1
+<pre>git clone https://github.com/jiawei686/kaggle-house-prices &amp;&amp; cd kaggle-house-prices
+
+# Python 3.13, lightgbm 4.7.0, xgboost 3.4.1, catboost 1.2.10, scikit-learn 1.9.1
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1   # low-memory machine, single thread
 
 kaggle competitions download -c house-prices-advanced-regression-techniques -p data/
 cd data &amp;&amp; unzip -o house-prices-advanced-regression-techniques.zip &amp;&amp; cd ..
+mkdir -p preds
 
 for m in lasso ridge enet lgbm xgb cat; do python run_one.py $m; done  # per-model OOF
 python blend.py             # NNLS blend -> submission_blend.csv   (v1, LB 0.12165)
@@ -176,8 +179,10 @@ python fix_outlier_test.py  # Edwards fix -> submission_v2.csv     (v2, LB 0.115
   <tr><td><code>run_one.py</code></td><td>one model per process, 10-fold OOF plus test predictions</td></tr>
   <tr><td><code>blend.py</code></td><td>NNLS weights, nested check, submission file</td></tr>
   <tr><td><code>fix_outlier_test.py</code></td><td>keep-outlier trees for the Edwards row</td></tr>
-  <tr><td><code>preds/*.npz</code></td><td>cached OOF and test predictions</td></tr>
+  <tr><td><code>preds/*.npz</code></td><td>cached OOF and test predictions (regenerated, not tracked)</td></tr>
   <tr><td><code>submission_v2.csv</code></td><td>final submission, LB 0.11569</td></tr>
+  <tr><td><code>submission_blend.csv</code></td><td>first submission, before the outlier fix, 0.12165</td></tr>
+  <tr><td><code>writeup.md</code></td><td>short version, formatted for a Kaggle discussion post</td></tr>
 </table>
 
 </body>
