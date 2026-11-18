@@ -86,7 +86,7 @@ else keeps the blend prediction. One row changed, $800,000 → $251,322.
 
 | Model | OOF RMSE | Weight |
 |---|---|---|
-| Lasso | 0.10997 | 0.503 |
+| Lasso | 0.10998 | 0.503 |
 | ElasticNet | 0.11005 | 0.000 |
 | XGBoost | 0.11050 | 0.393 |
 | Ridge | 0.11198 | 0.000 |
@@ -96,7 +96,7 @@ else keeps the blend prediction. One row changed, $800,000 → $251,322.
 
 Three linear models land within 0.002 of each other, so NNLS puts the whole
 linear direction on Lasso and zeroes out Ridge and ElasticNet. The blend's gain
-over the best single model (0.10997 → 0.10587) comes from mixing a regularised
+over the best single model (0.10998 → 0.10587) comes from mixing a regularised
 linear fit with two tree ensembles, which rank features differently.
 
 ## Reproduce
@@ -120,8 +120,15 @@ python fix_outlier_test.py # -> submission_v2.csv  (the submitted file)
 ```
 
 Expect ~15 minutes for the six-model run on 8 GB of RAM with single-threaded
-BLAS. Full write-up: [`report.pdf`](report.pdf) (source: [`report.html`](report.html)). Short version for a Kaggle
-post: [`writeup.md`](writeup.md).
+BLAS. Full write-up: [`report.pdf`](report.pdf) (source: [`report.html`](report.html)).
+Short version for a Kaggle post: [`writeup.md`](writeup.md).
+
+The report is set in Charter with equations in Times New Roman, both embedded.
+`make_report_pdf.py` drives Chromium over CDP rather than through
+`page.pdf()`, because only the CDP call exposes `generateTaggedPDF` and
+`generateDocumentOutline` — the PDF therefore carries a structure tree and 17
+bookmarks, one per heading. Text extracts row-wise with pypdf and PyMuPDF;
+pdfminer's default block grouping emits table columns instead of rows.
 
 ## Repository layout
 
@@ -136,8 +143,8 @@ submission_v2.csv       submitted file — public LB 0.11569
 submission_blend.csv    first submission, before the outlier fix — 0.12165
 blend_weights.json      fitted weights and both OOF estimates
 
-report.pdf              full method report, A4, 5 pages
-report.html             source of report.pdf, six tables
+report.pdf              full method report, A4, 5 pages, bookmarked
+report.html             source of report.pdf, six tables, two numbered equations
 make_report_pdf.py      renders the PDF from the HTML (playwright + PyMuPDF)
 writeup.md              short version formatted for a Kaggle discussion post
 ```

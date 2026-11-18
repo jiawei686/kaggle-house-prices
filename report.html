@@ -4,50 +4,96 @@
 <meta charset="utf-8">
 <title>House Prices — Method Report</title>
 <style>
+  /* ---------- type system ----------
+     body: Charter, a screen-first transitional serif with large x-height;
+     maths: Times New Roman, the usual companion for serif text and the
+     only face here with reliable coverage of sum, radical and norm bars. */
+  :root {
+    --ink: #15191e;
+    --ink-soft: #454d56;
+    --rule: #2b3138;
+    --rule-soft: #cdd1d5;
+    --tint: #f3f4f5;
+    --serif: Charter, "Bitstream Charter", "Iowan Old Style", Palatino, Georgia, serif;
+    --math: "Times New Roman", "Nimbus Roman", Times, serif;
+    --mono: "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  }
   @page { size: A4; margin: 18mm 16mm 15mm; }
   * { box-sizing: border-box; }
   html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body {
-    max-width: 760px; margin: 0 auto; padding: 44px 30px 80px;
-    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
-    font-size: 15px; line-height: 1.66; color: #111; background: #fff;
+    max-width: 720px; margin: 0 auto; padding: 48px 30px 84px;
+    font-family: var(--serif);
+    font-size: 15.2px; line-height: 1.64; color: var(--ink); background: #fff;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-kerning: normal;
+    font-variant-ligatures: common-ligatures;
   }
-  h1 { font-size: 22px; margin: 0 0 10px; letter-spacing: -0.3px; font-weight: 700; }
-  h2 { font-size: 16.5px; margin: 32px 0 10px; font-weight: 700; letter-spacing: -0.1px; }
-  h3 { font-size: 14.5px; margin: 20px 0 5px; font-weight: 600; }
+  h1 { font-size: 21.5px; line-height: 1.24; margin: 0 0 9px; font-weight: 700; letter-spacing: -0.15px; }
+  h2 { font-size: 16px; margin: 30px 0 9px; font-weight: 700; letter-spacing: -0.05px; }
+  h3 { font-size: 14.2px; margin: 19px 0 5px; font-weight: 700; }
   p { margin: 8px 0; }
-  .sub { color: #444; font-size: 13px; line-height: 1.62; margin: 0 0 30px; }
-  table { width: 100%; border-collapse: collapse; margin: 12px 0 6px; font-size: 13px; }
-  th, td { border: 1px solid #333; padding: 5px 8px; vertical-align: top; }
-  th { background: #f0f0f0; font-weight: 600; text-align: left; }
-  td.num { text-align: center; font-variant-numeric: tabular-nums; }
-  caption { caption-side: top; text-align: left; font-size: 12px; color: #222; padding: 0 0 5px; }
-  caption b { font-weight: 600; }
-  .note { font-size: 11.5px; color: #444; margin: 4px 0 0; line-height: 1.5; }
-  code { font-family: "SF Mono", Menlo, monospace; font-size: 12px; background: #f4f4f4; padding: 1px 3px; }
-  pre { font-family: "SF Mono", Menlo, monospace; font-size: 11px; background: #f7f7f7;
-        border: 1px solid #ddd; padding: 9px 11px; overflow-x: auto; line-height: 1.5; }
-  ul { margin: 8px 0; padding-left: 20px; }
+  .sub { color: var(--ink-soft); font-size: 13.2px; line-height: 1.58; margin: 0 0 20px; }
+  a { color: #1d4f7c; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .sub a.repo { color: var(--ink); }
+  .summary { font-size: 14.6px; line-height: 1.6; margin: 0 0 26px; }
+  .summary .k { font-style: italic; font-weight: 700; }
+
+  table { width: 100%; border-collapse: collapse; margin: 13px 0 6px; font-size: 13.2px; }
+  th, td { border: 1px solid var(--rule); padding: 5px 8px; vertical-align: top; }
+  th { background: var(--tint); font-weight: 700; text-align: left; }
+  td.num { text-align: center; font-variant-numeric: tabular-nums lining-nums; }
+  caption { caption-side: top; text-align: left; font-size: 12.2px; color: var(--ink); padding: 0 0 5px; line-height: 1.45; }
+  caption b { font-weight: 700; }
+  .note { font-size: 11.8px; color: var(--ink-soft); margin: 4px 0 0; line-height: 1.5; }
+
+  code { font-family: var(--mono); font-size: 12.2px; background: #f4f5f6; padding: 1px 3px; border-radius: 2px; }
+  pre { font-family: var(--mono); font-size: 11.2px; background: #f7f8f9;
+        border: 1px solid var(--rule-soft); padding: 9px 11px; overflow-x: auto; line-height: 1.52; }
+  ul { margin: 8px 0; padding-left: 19px; }
   li { margin: 3px 0; }
-  .k { font-weight: 600; }
+  .k { font-weight: 700; }
+
+  /* ---------- display equations ---------- */
+  .eq {
+    display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 10px;
+    margin: 14px 0 12px; font-family: var(--math); font-size: 15.4px; line-height: 1.62;
+  }
+  .eq .body { text-align: center; }
+  .eq .eqno { font-size: 13.2px; color: var(--ink-soft); }
+  /* radical: the glyph alone has no bar, so the radicand carries its own rule.
+     Text content is untouched, which keeps extraction order intact. */
+  .rt { font-size: 1.44em; line-height: 0.9; vertical-align: -0.115em; }
+  .rd { border-top: 0.9px solid currentColor; padding: 0.13em 0.12em 0 0.05em; }
+  /* norm bars: U+2225 misaligns in Times, two ASCII bars do not */
+  .nb { letter-spacing: 0.06em; }
+  /* inline maths: same face, no italic on numbers or function names */
+  .m { font-family: var(--math); font-size: 15.2px; white-space: nowrap; }
+  .m i, .eq i { font-style: italic; }
+  sub, sup { font-size: 0.72em; line-height: 0; }
 
   @media print {
-    body { max-width: none; padding: 0; font-size: 10.2pt; line-height: 1.55; }
+    body { max-width: none; padding: 0; font-size: 10.4pt; line-height: 1.56; }
     h1 { font-size: 17pt; margin: 0 0 6pt; }
-    h2 { font-size: 12.5pt; margin: 19pt 0 6pt; break-after: avoid; }
-    h3 { font-size: 11pt; margin: 13pt 0 3pt; break-after: avoid; }
+    h2 { font-size: 12.2pt; margin: 18pt 0 5.5pt; break-after: avoid; }
+    h3 { font-size: 10.8pt; margin: 12.5pt 0 3pt; break-after: avoid; }
     p { margin: 5pt 0; }
-    .sub { font-size: 9pt; line-height: 1.5; margin-bottom: 17pt; }
-    table { font-size: 9pt; margin: 8pt 0 4pt; break-inside: avoid; }
-    tr, caption, pre { break-inside: avoid; }
-    caption { break-after: avoid; }
+    .sub { font-size: 8.8pt; line-height: 1.48; margin-bottom: 13pt; }
+    .summary { font-size: 10pt; margin-bottom: 16pt; }
+    table { font-size: 8.9pt; margin: 7.5pt 0 4pt; break-inside: avoid; }
+    th, td { padding: 3.6pt 5pt; }
+    tr, caption, pre, .eq { break-inside: avoid; }
+    caption { break-after: avoid; font-size: 8.5pt; padding-bottom: 3pt; }
     p, li { orphans: 3; widows: 3; }
-    h2 + p, h2 + ul, h2 + table, h3 + p { break-before: avoid; }
-    pre { font-size: 8.5pt; padding: 7pt 9pt; }
-    code { font-size: 8.6pt; }
-    .note { font-size: 8.4pt; }
-    a { color: #111; text-decoration: none; }
+    h2 + p, h2 + ul, h2 + table, h2 + .eq, h3 + p, h3 + .eq { break-before: avoid; }
+    pre { font-size: 8.3pt; padding: 6.5pt 8.5pt; }
+    code { font-size: 8.5pt; }
+    .note { font-size: 8.2pt; }
+    .eq { font-size: 10.6pt; margin: 8pt 0 7pt; }
+    .m { font-size: 10.4pt; }
+    a { color: var(--ink); text-decoration: none; }
   }
 </style>
 </head>
@@ -57,18 +103,28 @@
 <p class="sub">
 Competition: House Prices - Advanced Regression Techniques<br>
 Group: we-are-nai-looong &nbsp;|&nbsp; Team: <strong>we are nai looong</strong> &nbsp;|&nbsp; 18 Nov 2026<br>
-Final public LB: <strong>0.11569</strong> &nbsp;|&nbsp; Rank <strong>236 / 4,957</strong> (top 4.76%)
+Final public LB: <strong>0.11569</strong> &nbsp;|&nbsp; Rank <strong>236 / 4,957</strong> (top 4.76%)<br>
+Code and full write-up: <a class="repo" href="https://github.com/jiawei686/kaggle-house-prices">github.com/jiawei686/kaggle-house-prices</a>
 </p>
+
+<p class="summary"><span class="k">Summary.</span> Six regression models from two families were blended by non-negative least squares, giving a cross-validated RMSE of 0.10587 in log space. The first submission scored 0.12165, far worse than cross-validation predicted, and the gap turned out to be a single test row in a neighbourhood where large houses sell cheap. Training a second pair of trees on the unpruned data, and using them for that row only, moved the public score to 0.11569 and the rank from 923 to 236 of 4,957.</p>
 
 <h2>1. Task and data</h2>
 
-<p>Predict the sale price of houses in Ames, Iowa. The metric is RMSE between the log of the predictions and the log of the true prices, so every number in this report is in log space and directly comparable to the leaderboard.</p>
+<p>Predict the sale price of houses in Ames, Iowa. The metric is the root mean squared error between predicted and true log prices, so every number in this report is in log space and directly comparable to the leaderboard:</p>
+
+<div class="eq">
+  <div class="body">RMSE = <span class="rt">&radic;</span><span class="rd">(<span style="white-space:nowrap">1/<i>n</i></span>) &middot; &sum;<sub><i>i</i></sub> ( log&nbsp;<i>ŷ</i><sub><i>i</i></sub> &minus; log&nbsp;<i>y</i><sub><i>i</i></sub> )<sup>2</sup></span></div>
+  <span class="eqno">(1)</span>
+</div>
+
+<p>where <i>n</i> is the number of test rows and the sum runs over all of them. A score of 0.1157 therefore means roughly 12% typical relative error, since a log difference of 0.1157 is a ratio of <i>e</i><sup>0.1157</sup> &asymp; 1.12.</p>
 
 <p>SalePrice is right-skewed (skew 1.88); after <code>log1p</code> it is close to normal (0.12). 43 of the 79 columns are categorical, and many are missing on purpose — no basement, no garage, no pool — so missingness carries information.</p>
 
 <table>
   <caption><b>Table 1.</b> Competition and data</caption>
-  <tr><th style="width:34%">Item</th><th>Value</th></tr>
+  <tr><th scope="col" style="width:34%">Item</th><th scope="col">Value</th></tr>
   <tr><td>Metric</td><td>RMSE in log(SalePrice) space</td></tr>
   <tr><td>Train / test rows</td><td>1,460 / 1,459</td></tr>
   <tr><td>Columns</td><td>79 (43 categorical, 36 numeric)</td></tr>
@@ -96,7 +152,7 @@ Final public LB: <strong>0.11569</strong> &nbsp;|&nbsp; Rank <strong>236 / 4,957
 
 <table>
   <caption><b>Table 2.</b> Model configurations</caption>
-  <tr><th style="width:15%">Model</th><th style="width:26%">Matrix</th><th>Settings</th></tr>
+  <tr><th scope="col" style="width:15%">Model</th><th scope="col" style="width:26%">Matrix</th><th scope="col">Settings</th></tr>
   <tr><td>Lasso</td><td>one-hot, 252 cols</td><td>RobustScaler, inner 5-fold <code>LassoCV</code> over 40 alphas from 1e-5 to 1e-1</td></tr>
   <tr><td>Ridge</td><td>one-hot, 252 cols</td><td>RobustScaler, inner <code>RidgeCV</code>, alpha 1e-2 to 1e3</td></tr>
   <tr><td>ElasticNet</td><td>one-hot, 252 cols</td><td>inner <code>ElasticNetCV</code>, l1_ratio in {0.5, 0.7, 0.9, 1.0}</td></tr>
@@ -110,11 +166,18 @@ Final public LB: <strong>0.11569</strong> &nbsp;|&nbsp; Rank <strong>236 / 4,957
 <p>One fixed split, <code>KFold(10, shuffle=True, random_state=42)</code>, shared by all six models so the out-of-fold predictions line up for blending. Every tuned parameter (alpha, number of trees) is chosen inside the training fold only. Test predictions are the mean of the 10 fold models in log space.</p>
 
 <h3>Step 5. Blending</h3>
-<p>Weights come from non-negative least squares on the OOF matrix: <code>min ||y - &Sigma;w&middot;oof||&#8322;</code> with <code>w &ge; 0</code>. The non-negativity constraint stops models from cancelling each other. To check whether the weights themselves overfit, I refit them on 9 folds and scored the held-out fold.</p>
+<p>Weights come from non-negative least squares on the out-of-fold matrix, with one weight per model:</p>
+
+<div class="eq">
+  <div class="body">min<sub><i>w</i></sub> &nbsp;<span class="nb">||</span> <i>y</i> &minus; &sum;<sub><i>k</i></sub> <i>w</i><sub><i>k</i></sub> &middot; oof<sub><i>k</i></sub> <span class="nb">||</span><sub>2</sub> &nbsp;&nbsp; subject to &nbsp; <i>w</i><sub><i>k</i></sub> &ge; 0</div>
+  <span class="eqno">(2)</span>
+</div>
+
+<p>The non-negativity constraint stops models from cancelling each other out, which a plain least-squares fit on correlated predictions will happily do. To check whether the weights themselves overfit, I refit them on 9 folds and scored the held-out fold.</p>
 
 <table>
   <caption><b>Table 3.</b> Out-of-fold RMSE, 10 folds, log space</caption>
-  <tr><th style="width:26%">Model</th><th style="width:18%">OOF RMSE</th><th style="width:18%">Fold std</th><th>Note</th></tr>
+  <tr><th scope="col" style="width:26%">Model</th><th scope="col" style="width:18%">OOF RMSE</th><th scope="col" style="width:18%">Fold std</th><th scope="col">Note</th></tr>
   <tr><td>Lasso</td><td class="num">0.10998</td><td class="num">0.0132</td><td>best single model</td></tr>
   <tr><td>ElasticNet</td><td class="num">0.11005</td><td class="num">0.0133</td><td>rho = 1.000 with Lasso, weight 0</td></tr>
   <tr><td>XGBoost</td><td class="num">0.11050</td><td class="num">0.0112</td><td>most stable across folds</td></tr>
@@ -139,8 +202,8 @@ Final public LB: <strong>0.11569</strong> &nbsp;|&nbsp; Rank <strong>236 / 4,957
 
 <table>
   <caption><b>Table 4.</b> Edwards houses above 3,000 sqft</caption>
-  <tr><th style="width:18%">Row</th><th style="width:15%">GrLivArea</th><th style="width:15%">Qual</th>
-      <th style="width:13%">Built</th><th style="width:16%">LotArea</th><th>SalePrice</th></tr>
+  <tr><th scope="col" style="width:18%">Row</th><th scope="col" style="width:15%">GrLivArea</th><th scope="col" style="width:15%">Qual</th>
+      <th scope="col" style="width:13%">Built</th><th scope="col" style="width:16%">LotArea</th><th scope="col">SalePrice</th></tr>
   <tr><td>Id 524 (train)</td><td class="num">4,676</td><td class="num">10</td><td class="num">2007</td><td class="num">40,094</td><td class="num">184,750</td></tr>
   <tr><td>Id 1299 (train)</td><td class="num">5,642</td><td class="num">10</td><td class="num">2008</td><td class="num">63,887</td><td class="num">160,000</td></tr>
   <tr><td class="k">Id 2550 (test)</td><td class="num k">5,095</td><td class="num">10</td><td class="num">2008</td><td class="num">39,290</td><td class="num">—</td></tr>
@@ -149,7 +212,7 @@ Final public LB: <strong>0.11569</strong> &nbsp;|&nbsp; Rank <strong>236 / 4,957
 
 <h3>Step 8. Why it happened</h3>
 <p>I had dropped the two rows where <code>GrLivArea &gt; 4000</code> and <code>SalePrice &lt; 300000</code>, which is common practice and did improve CV from 0.1367 to 0.1100. The cost was that the training data no longer contained a single example of a large cheap house in Edwards. The model saw size and quality and extrapolated, which is exactly what a linear model does when the counter-example is gone.</p>
-<p>The arithmetic checks out. With a true price near 170,000, the log error is log(800000/170000) = 1.55, and one row out of 1,459 contributes &radic;(1.55&sup2;/1459) &asymp; 0.041 to the RMSE — about the whole gap. Removing that single error from v1 leaves 0.1147, matching the 0.1157 measured on the corrected file.</p>
+<p>The arithmetic checks out. With a true price near 170,000 the log error is <span class="m">log(800000/170000) = 1.55</span>. One row out of 1,459 then contributes <span class="m">&radic;(1.55<sup>2</sup>/1459) &asymp; 0.041</span> to the RMSE, which is the size of the whole gap. Removing that single squared error from v1 gives <span class="m">&radic;(0.12165<sup>2</sup> &minus; 1.55<sup>2</sup>/1459) = 0.1147</span>, within 0.001 of the 0.11569 actually measured on the corrected file. The residual difference is the tree model not landing exactly on 170,000.</p>
 
 <h3>Step 9. The fix</h3>
 <p>No hand-assigned values. I trained a second pair of trees (XGBoost and LightGBM, same settings as Table 2) on the data <em>with</em> the two outliers kept, and used them only for rows of this type. With the counter-examples present the tree can split on the interaction, and it returns 251,322 for Id 2550, in line with the other Edwards sales.</p>
@@ -159,8 +222,8 @@ Final public LB: <strong>0.11569</strong> &nbsp;|&nbsp; Rank <strong>236 / 4,957
 
 <table>
   <caption><b>Table 5.</b> Submissions and leaderboard</caption>
-  <tr><th style="width:12%">Version</th><th style="width:30%">Content</th><th style="width:15%">Public LB</th>
-      <th style="width:20%">Rank / teams</th><th>Percentile</th></tr>
+  <tr><th scope="col" style="width:12%">Version</th><th scope="col" style="width:30%">Content</th><th scope="col" style="width:15%">Public LB</th>
+      <th scope="col" style="width:20%">Rank / teams</th><th scope="col">Percentile</th></tr>
   <tr><td>v1</td><td>6-model NNLS blend</td><td class="num">0.12165</td><td class="num">923 / 4,954</td><td class="num">18.63%</td></tr>
   <tr><td class="k">v2</td><td>v1 with the Edwards row corrected</td><td class="num k">0.11569</td><td class="num k">236 / 4,957</td><td class="num k">4.76%</td></tr>
   <tr><td>Top 10% cutoff</td><td>what the threshold requires</td><td class="num">&le; 0.11966</td><td class="num">&le; 495</td><td class="num">10.00%</td></tr>
@@ -204,7 +267,7 @@ python fix_outlier_test.py  # Edwards fix -> submission_v2.csv     (v2, LB 0.115
 
 <table>
   <caption><b>Table 6.</b> Repository contents</caption>
-  <tr><th style="width:34%">File</th><th>Contents</th></tr>
+  <tr><th scope="col" style="width:34%">File</th><th scope="col">Contents</th></tr>
   <tr><td><code>README.md</code></td><td>results, method summary, reproduce commands, what did not work</td></tr>
   <tr><td><code>report.html</code> / <code>report.pdf</code></td><td>this document; the PDF is generated from the HTML</td></tr>
   <tr><td><code>writeup.md</code></td><td>short version, formatted for a Kaggle discussion post</td></tr>
@@ -212,6 +275,8 @@ python fix_outlier_test.py  # Edwards fix -> submission_v2.csv     (v2, LB 0.115
   <tr><td><code>run_one.py</code></td><td>one model per process, 10-fold OOF plus test predictions</td></tr>
   <tr><td><code>blend.py</code></td><td>NNLS weights, nested check, submission file</td></tr>
   <tr><td><code>fix_outlier_test.py</code></td><td>keep-outlier trees for the Edwards row</td></tr>
+  <tr><td><code>make_report_pdf.py</code></td><td>renders this PDF from the HTML, with bookmarks</td></tr>
+  <tr><td><code>requirements.txt</code></td><td>pinned versions of every library used</td></tr>
   <tr><td><code>submission_v2.csv</code></td><td>final submission, LB 0.11569</td></tr>
   <tr><td><code>submission_blend.csv</code></td><td>first submission, before the outlier fix, 0.12165</td></tr>
   <tr><td><code>preds/*.npz</code></td><td>cached OOF and test predictions (regenerated, not tracked)</td></tr>
