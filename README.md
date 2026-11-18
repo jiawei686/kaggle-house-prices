@@ -108,6 +108,7 @@ Full write-up: [`report.html`](report.html).
 | `submission_v2.csv` | Submitted file — public LB 0.11569 |
 | `submission_blend.csv` | First submission, before the outlier fix — 0.12165 |
 | `report.html` | Method report |
+| `writeup.md` | Short version, formatted for a Kaggle Discussion post |
 
 `data/`, `preds/` and `teammate/` are not tracked. The first two come from the
 commands above; `teammate/` holds a private notebook belonging to another team
